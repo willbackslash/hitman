@@ -7,6 +7,7 @@ authors = ["William De la Cruz <macwilliamdlc@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 django = "^3.1.1"
+uwsgi = "^2.0.19"
 
 [tool.poetry.dev-dependencies]
 

@@ -1,0 +1,29 @@
+---
+version: "3.7"
+
+services:
+  local-db:
+    image: postgres:11
+    environment:
+      - POSTGRES_DB=hitman
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      target: builder
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    command: --py-autoreload=1
+    restart: on-failure
+    ports:
+      - "${PORT:-80}:80"
+    depends_on:
+      - local-db
