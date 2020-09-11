@@ -85,6 +85,17 @@ django = "*"
 
 [[package]]
 category = "main"
+description = "Web APIs for Django, made easy."
+name = "djangorestframework"
+optional = false
+python-versions = ">=3.5"
+version = "3.11.1"
+
+[package.dependencies]
+django = ">=1.11"
+
+[[package]]
+category = "main"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
 name = "mypy-extensions"
 optional = false
@@ -164,7 +175,7 @@ python-versions = "*"
 version = "2.0.19.1"
 
 [metadata]
-content-hash = "bd29ae94e2e9404e792b526c8ddd878b0c97822b10d82fdff0d292752b91fab8"
+content-hash = "e12166cfcee70e691113cca68656662f84d87db1091c9ab5157a96817c6034aa"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -195,6 +206,10 @@ django-environ = [
 ]
 django-username-email = [
     {file = "django-username-email-2.4.0.tar.gz", hash = "sha256:77b9f47258064c083b16881b1ab3bfb70cc64352cd0a51536c9123c612de7851"},
+]
+djangorestframework = [
+    {file = "djangorestframework-3.11.1-py3-none-any.whl", hash = "sha256:8b1ac62c581dbc5799b03e535854b92fc4053ecfe74bad3f9c05782063d4196b"},
+    {file = "djangorestframework-3.11.1.tar.gz", hash = "sha256:6dd02d5a4bd2516fb93f80360673bf540c3b6641fec8766b1da2870a5aa00b32"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
