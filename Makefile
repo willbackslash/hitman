@@ -4,3 +4,7 @@ up:
 
 logs:
 	docker-compose logs --follow
+
+lint:
+	@# Applies  standard code formatting to the project
+	black --exclude db-data .
