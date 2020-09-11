@@ -5,7 +5,7 @@ services:
   local-db:
     image: postgres:11
     environment:
-      - POSTGRES_DB=hitman
+      - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
