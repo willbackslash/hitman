@@ -22,6 +22,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response("Bad request", status.HTTP_400_BAD_REQUEST)
 
         # TODO: check if email already exists
+        # TODO: Assign user to a manager
 
         cleaned_data = create_user_serializer.data
         user = User(
