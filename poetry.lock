@@ -74,6 +74,17 @@ version = "0.4.5"
 
 [[package]]
 category = "main"
+description = "Custom Django User model that makes email the USERNAME_FIELD."
+name = "django-username-email"
+optional = false
+python-versions = "*"
+version = "2.4.0"
+
+[package.dependencies]
+django = "*"
+
+[[package]]
+category = "main"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
 name = "mypy-extensions"
 optional = false
@@ -153,7 +164,7 @@ python-versions = "*"
 version = "2.0.19.1"
 
 [metadata]
-content-hash = "af9b3d5a22e18d49d3bd052227b7fa7cde948f3b20043a492027b4e32803a758"
+content-hash = "bd29ae94e2e9404e792b526c8ddd878b0c97822b10d82fdff0d292752b91fab8"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -181,6 +192,9 @@ django = [
 django-environ = [
     {file = "django-environ-0.4.5.tar.gz", hash = "sha256:6c9d87660142608f63ec7d5ce5564c49b603ea8ff25da595fd6098f6dc82afde"},
     {file = "django_environ-0.4.5-py2.py3-none-any.whl", hash = "sha256:c57b3c11ec1f319d9474e3e5a79134f40174b17c7cc024bbb2fad84646b120c4"},
+]
+django-username-email = [
+    {file = "django-username-email-2.4.0.tar.gz", hash = "sha256:77b9f47258064c083b16881b1ab3bfb70cc64352cd0a51536c9123c612de7851"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
