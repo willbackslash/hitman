@@ -1,11 +1,14 @@
 from cuser.models import CUser as User
+from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from users.serializers import UserSerializer, CreateUserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -27,7 +30,7 @@ class UserViewSet(viewsets.ModelViewSet):
         cleaned_data = create_user_serializer.data
         user = User(
             email=cleaned_data["email"],
-            password=cleaned_data["password"],
+            password=make_password(cleaned_data["password"]),
         )
         user.save()
 
