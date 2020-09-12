@@ -52,7 +52,7 @@ jobs:
           DEBUG: 'true'
           APP_ENVIRONMENT: 'development'
           ALLOWED_HOSTS: '*'
-          CORS_ORIGIN_WHITELIST: '*'
+          CORS_ORIGIN_WHITELIST: 'http://*'
         run: |
           python manage.py test
 
