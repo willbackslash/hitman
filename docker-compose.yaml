@@ -27,3 +27,16 @@ services:
       - "${PORT:-80}:80"
     depends_on:
       - local-db
+
+  # TODO: enable frontend in docker compose
+  #frontend:
+  #  build: ./hitman-ui
+  #  command: ["npm", "start"]
+  #  volumes:
+  #    - ./hitman-ui:/app/frontend
+  #    - node-modules:/app/frontend/node_modules
+  #  ports:
+  #    - "3000:3000"
+
+volumes:
+  node-modules:

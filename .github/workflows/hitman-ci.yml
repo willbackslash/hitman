@@ -55,3 +55,24 @@ jobs:
           CORS_ORIGIN_WHITELIST: '*'
         run: |
           python manage.py test
+
+  buildAndTest:
+    name: React app build and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hitman-ui
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test --watchAll=false
