@@ -10,7 +10,7 @@ RUN poetry export -f requirements.txt --without-hashes --dev > requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 COPY docker-entrypoint.sh .
 ENTRYPOINT ["./docker-entrypoint.sh"]
-COPY .. .
+COPY . .
 EXPOSE 80
 
 FROM python:3.8
@@ -24,4 +24,4 @@ RUN set -ex \
 
 COPY docker-entrypoint.sh .
 ENTRYPOINT ["./docker-entrypoint.sh"]
-COPY .. .
+COPY . .

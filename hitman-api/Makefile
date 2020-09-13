@@ -14,7 +14,7 @@ logs:
 
 lint:
 	@# Applies  standard code formatting to the project
-	black --exclude db-data hitman-ui .
+	black --exclude db-data .
 
 migrations:
 	@# Checks for changes that would need new migrations
