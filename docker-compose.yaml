@@ -20,7 +20,7 @@ services:
     volumes:
       - .:/app
     env_file:
-      - .env
+      - hitman-api/.env
     command: --py-autoreload=1
     restart: on-failure
     ports:
