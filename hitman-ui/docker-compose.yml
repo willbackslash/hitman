@@ -1,0 +1,14 @@
+---
+version: "3.7"
+
+services:
+
+  frontend:
+    build:
+      context: .
+      target: server
+    command: ["serve", "-p", "3000", "-s", "."]
+    volumes:
+      - .:/app/frontend
+    ports:
+      - "3000:3000"

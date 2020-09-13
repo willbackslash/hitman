@@ -1,25 +1,14 @@
-# Save the docker exec command in a var
-APP_SHELL = docker-compose exec app
-
-# Bring up the needed env variables
-include .env
-export
-
 up:
-	@# It will start both local-db and app
-	docker-compose up --build --detach
+	@# It will start both frontend and backend
+	docker-compose -f ./hitman-api/docker-compose.yml up --build --detach
+	docker-compose -f ./hitman-ui/docker-compose.yml up --build --detach
+
+down:
+	# It will remove both frontend and backend
+	docker-compose -f ./hitman-api/docker-compose.yml stop
+	docker-compose -f ./hitman-api/docker-compose.yml rm
+	docker-compose -f ./hitman-ui/docker-compose.yml stop
+	docker-compose -f ./hitman-ui/docker-compose.yml rm
 
 logs:
-	docker-compose logs --follow
-
-lint:
-	@# Applies  standard code formatting to the project
-	black --exclude db-data hitman-ui .
-
-migrations:
-	@# Checks for changes that would need new migrations
-	python manage.py makemigrations
-
-migrate:
-	@# Checks for changes that would need new migrations
-	python manage.py migrate
+	docker-compose -f ./hitman-api/docker-compose.yml -f hitman-ui/docker-compose.yml logs --follow
