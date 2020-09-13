@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Container, Row, Col, Form, Button, Alert,
 } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
 import useAxios from 'axios-hooks';
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -12,10 +13,19 @@ const schema = yup.object({
 });
 
 const Login = () => {
+  const history = useHistory();
   const [{ data, loading, error }, callAuthService] = useAxios({ url: '/auth/', method: 'POST' }, { manual: true });
   const authenticate = ({ email, password }) => {
     callAuthService({ url: '/auth/', method: 'POST', data: { username: email, password } });
   };
+
+  useEffect(() => {
+    if (data && data.token) {
+      sessionStorage.setItem('SESSION_AUTH', data.token);
+      history.push('/hits');
+      window.location.reload();
+    }
+  }, [data, history]);
 
   return (
     <Formik
