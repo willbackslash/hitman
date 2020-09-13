@@ -1,10 +1,16 @@
 from cuser.models import CUser as User
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from users.serializers import UserSerializer, CreateUserSerializer
+from users.serializers import (
+    UserSerializer,
+    CreateUserSerializer,
+    UserProfileSerializer,
+)
+from users.utils import get_user_roles
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -35,3 +41,19 @@ class UserViewSet(viewsets.ModelViewSet):
         user.save()
 
         return Response(self.serializer_class(user).data, status.HTTP_201_CREATED)
+
+    @action(methods=["GET"], detail=False, description="Retrieves the user's profile")
+    def profile(self, request):
+        profile = {
+            "email": request.user.email,
+            "roles": get_user_roles(request.user),
+            "is_super_user": request.user.is_superuser,
+        }
+        profile_serializer = UserProfileSerializer(data=profile)
+
+        if not profile_serializer.is_valid():
+            raise Exception(
+                "INVALID_USER_PROFILE"
+            )  # Todo add middleware to handle custom exceptions
+
+        return Response(data=profile_serializer.data)

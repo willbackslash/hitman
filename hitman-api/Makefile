@@ -14,7 +14,7 @@ logs:
 
 lint:
 	@# Applies  standard code formatting to the project
-	black --exclude db-data .
+	black --exclude db-data --exclude venv .
 
 migrations:
 	@# Checks for changes that would need new migrations
@@ -23,3 +23,7 @@ migrations:
 migrate:
 	@# Checks for changes that would need new migrations
 	python manage.py migrate
+
+test:
+	@ # Run the test cases
+	python manage.py test
