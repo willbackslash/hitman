@@ -3,17 +3,16 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 
+from users.tests.factories.user_factory import UserFactory
+
 
 class TestUserViews(APITestCase):
     def setUp(self) -> None:
         self.create_users_url = reverse("users-list")
+        self.user = UserFactory(email="hitman1@mail.com")
 
     def test_it_creates_a_user_correctly(self):
-        user = CUser(
-            email="myemail@test.com", password="secret"
-        )  # TODO: implement factories
-        user.save()
-        self.client.force_authenticate(user)
+        self.client.force_authenticate(self.user)
         payload = {"email": "test@mail.com", "password": "secret"}
         response = self.client.post(self.create_users_url, payload)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
@@ -21,13 +20,7 @@ class TestUserViews(APITestCase):
 
     def test_it_gets_a_user_profile_correctly(self):
         url = reverse("users-profile")
-        user = CUser(
-            email="myemail@test.com", password="secret"
-        )  # TODO: implement factories
-        user.save()
-        role = Group.objects.get(name="hitman")
-        role.user_set.add(user)
-        self.client.force_authenticate(user)
+        self.client.force_authenticate(self.user)
         response = self.client.get(url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
@@ -35,10 +28,7 @@ class TestUserViews(APITestCase):
         self,
     ):
         url = reverse("users-profile")
-        user = CUser(
-            email="myemail@test.com", password="secret"
-        )  # TODO: implement factories
-        user.save()
+        user = UserFactory(email="no-role-user@mail.com")
         self.client.force_authenticate(user)
         with self.assertRaises(Exception):
             try:
