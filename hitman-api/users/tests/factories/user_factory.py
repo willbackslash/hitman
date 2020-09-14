@@ -4,6 +4,13 @@ from cuser.models import CUser as User, Group
 
 
 class UserFactory(factory.django.DjangoModelFactory):
+    """
+    Factory to create users with role included:
+    if email contains the string `hitman` the user will have the `hitman` role
+    if email contains the string `manager` the user will have the `manager` role
+    if email not contains the string `manager` nor `manager` the user will don't have any role
+    """
+
     class Meta:
         model = User
 
