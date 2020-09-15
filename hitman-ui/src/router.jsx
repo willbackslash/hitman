@@ -1,47 +1,86 @@
-import React from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+import React, { useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
-  Route, useHistory, withRouter,
+  Route,
+  withRouter,
+  Redirect,
 } from 'react-router-dom';
+import useAxios from 'axios-hooks';
+import PropTypes from 'prop-types';
 import Navigation from './components/Navigation';
 import Login from './pages/Login';
+import Logout from './pages/Logout';
 import Hits from './pages/Hits';
 import useIsAuthenticaded from './hooks/useIsAuthenticated';
+import { hasHitmenPermissions } from './utils';
 
-const PrivateRoutes = () => {
+const PrivateRoute = ({ component: Component, ...props }) => {
   const isAutenticated = useIsAuthenticaded();
-  const history = useHistory();
-  const onSignOut = () => {
-    sessionStorage.removeItem('SESSION_AUTH');
-    history.push('/');
-    window.location.reload();
-  };
-
   return (
-    isAutenticated
-      ? (
-        <>
-          <Navigation onSignOut={onSignOut} />
-          <Switch>
-            <Route path="/hits" component={withRouter(Hits)} exact />
-            <Route path="/hitmen" component={withRouter(Hits)} exact />
-          </Switch>
-        </>
-      ) : null
+    <Route
+      {...props}
+      // eslint-disable-next-line no-shadow
+      render={(props) => (isAutenticated ? (<Component {...props} />) : (<Redirect to="/" />))}
+    />
   );
 };
 
-const PublicRoutes = () => (
-  <Switch>
-    <Route path="/" component={withRouter(Login)} exact />
-  </Switch>
-);
+PrivateRoute.propTypes = {
+  component: PropTypes.element.isRequired,
+};
 
-const MainRouter = () => (
-  <Router>
-    <PrivateRoutes />
-    <PublicRoutes />
-  </Router>
-);
+const MainRouter = () => {
+  const isAutenticated = useIsAuthenticaded();
+
+  // TODO : handle API errors redirecting to 500 page
+  // eslint-disable-next-line no-unused-vars
+  const [{ data: userProfile, error }, callProfileService] = useAxios(
+    { url: '/users/profile', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } },
+    { manual: true },
+  );
+
+  const [profile, setProfile] = useState(null);
+  const [canViewHitmen, setCanViewHitmen] = useState(null);
+
+  useEffect(
+    () => {
+      if (isAutenticated) {
+        callProfileService();
+      }
+    }, [isAutenticated, callProfileService],
+  );
+
+  useEffect(
+    () => {
+      if (userProfile) {
+        setProfile(userProfile);
+      }
+    }, [userProfile],
+  );
+
+  useEffect(
+    () => {
+      if (userProfile) {
+        setProfile(userProfile);
+        setCanViewHitmen(hasHitmenPermissions(userProfile));
+      }
+    }, [userProfile],
+  );
+
+  return (
+    <Router>
+      {isAutenticated && <Navigation profile={profile} canViewHitmen={canViewHitmen} />}
+      <Switch>
+        <Route path="/" component={withRouter(Login)} exact />
+        <PrivateRoute path="/hits" component={withRouter(Hits)} exact />
+        <PrivateRoute path="/logout" component={withRouter(Logout)} exact />
+        <Route>
+          <h2>404: Target not found</h2>
+        </Route>
+      </Switch>
+    </Router>
+  );
+};
 export default MainRouter;
