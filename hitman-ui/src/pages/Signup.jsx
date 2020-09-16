@@ -2,21 +2,21 @@ import React, { useEffect } from 'react';
 import {
   Container, Row, Col, Form, Button, Alert,
 } from 'react-bootstrap';
-import { useHistory, Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import useAxios from 'axios-hooks';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 
 const schema = yup.object({
   email: yup.string().required(),
-  password: yup.string().required(),
+  password: yup.string().matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/).required(),
 });
 
-const Login = () => {
+const Signup = () => {
   const history = useHistory();
-  const [{ data, loading, error }, callAuthService] = useAxios({ url: '/auth/', method: 'POST' }, { manual: true });
-  const authenticate = ({ email, password }) => {
-    callAuthService({ url: '/auth/', method: 'POST', data: { username: email, password } });
+  const [{ data, loading, error }, callRegisterService] = useAxios({ url: '/users', method: 'POST' }, { manual: true });
+  const register = ({ email, password }) => {
+    callRegisterService({ data: { email, password } });
   };
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const Login = () => {
   return (
     <Formik
       validationSchema={schema}
-      onSubmit={authenticate}
+      onSubmit={register}
       initialValues={{
         email: '',
         password: '',
@@ -39,17 +39,13 @@ const Login = () => {
       {({
         handleSubmit,
         handleChange,
-        // handleBlur,
         values,
-        // touched,
-        // isValid,
         errors,
       }) => (
-        // TODO: Refactor in multiple files and remove password restriction
         <Container>
           <Row className="vertical-center">
             <Col md={{ span: 4, offset: 4 }}>
-              <h1>Welcome to Hitman</h1>
+              <h1>Sign Up to Hitman</h1>
             </Col>
             <Col md={{ span: 4, offset: 4 }}>
               <Form onSubmit={handleSubmit}>
@@ -80,19 +76,26 @@ const Login = () => {
                   </Form.Text>
                 </Form.Group>
                 <Button disabled={loading} variant="primary" type="submit">
-                  {!loading ? 'Sign in' : 'Authenticating ...'}
+                  {!loading ? 'Sign up' : 'Registering ...'}
                 </Button>
               </Form>
               <span>
                 <br />
               </span>
-              {error ? <Alert variant="danger">Invalid credentials</Alert> : null}
-              {data ? <Alert variant="success">{data.token}</Alert> : null}
-            </Col>
-            <Col md={{ span: 4, offset: 4 }}>
-              Don&apos;t have an account?
-              {' '}
-              <Link to="/register">Sign Up</Link>
+              {error ? (
+                <Alert variant="danger">
+                  Could not register:
+                  {' '}
+                  {error.response.data.detail}
+                </Alert>
+              ) : null}
+              {data ? (
+                <Alert variant="success">
+                  The account was created:
+                  {' '}
+                  <Link to="/">Go to Login</Link>
+                </Alert>
+              ) : null}
             </Col>
           </Row>
         </Container>
@@ -100,4 +103,4 @@ const Login = () => {
     </Formik>
   );
 };
-export default Login;
+export default Signup;

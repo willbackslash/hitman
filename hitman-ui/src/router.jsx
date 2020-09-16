@@ -11,6 +11,7 @@ import useAxios from 'axios-hooks';
 import PropTypes from 'prop-types';
 import Navigation from './components/Navigation';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Logout from './pages/Logout';
 import Hits from './pages/Hits';
 import useIsAuthenticaded from './hooks/useIsAuthenticated';
@@ -74,6 +75,7 @@ const MainRouter = () => {
       {isAutenticated && <Navigation profile={profile} canViewHitmen={canViewHitmen} />}
       <Switch>
         <Route path="/" component={withRouter(Login)} exact />
+        <Route path="/register" component={withRouter(Signup)} exact />
         <PrivateRoute path="/hits" component={withRouter(Hits)} exact />
         <PrivateRoute path="/logout" component={withRouter(Logout)} exact />
         <Route>
