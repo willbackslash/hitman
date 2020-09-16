@@ -1,4 +1,5 @@
 from cuser.models import CUser
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,6 +7,8 @@ from rest_framework.response import Response
 from hits.models import Hit
 from hits.permissions import UserCanCreateHits
 from hits.serializers import HitSerializer, CreateHitSerializer
+from users.models import ManagerUser
+from users.utils import get_user_roles
 
 
 class HitViewSet(viewsets.ModelViewSet):
@@ -13,6 +16,26 @@ class HitViewSet(viewsets.ModelViewSet):
     queryset = Hit.objects.all()
     serializer_class = HitSerializer
     permission_classes_by_action = {"create": [IsAuthenticated, UserCanCreateHits]}
+
+    def get_queryset(self):  # Filters the available hits by user role
+        user = self.request.user
+        roles = get_user_roles(user)
+
+        if user.is_superuser:
+            return self.queryset
+
+        if "manager" in roles:
+            return self.queryset.filter(
+                Q(assigned_to=user)
+                | Q(
+                    assigned_to__in=[
+                        lackey.user
+                        for lackey in ManagerUser.objects.filter(manager=user).all()
+                    ]
+                )
+            )
+
+        return self.queryset.filter(assigned_to=user)
 
     def get_permissions(self):
         try:
