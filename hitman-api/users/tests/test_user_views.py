@@ -1,4 +1,3 @@
-from cuser.models import CUser, Group
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -12,11 +11,20 @@ class TestUserViews(APITestCase):
         self.user = UserFactory(email="hitman1@mail.com")
 
     def test_it_creates_a_user_correctly(self):
-        self.client.force_authenticate(self.user)
-        payload = {"email": "test@mail.com", "password": "secret"}
+        payload = {"email": "test@mail.com", "password": "secret1992"}
         response = self.client.post(self.create_users_url, payload)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(response.json()["email"], payload["email"])
+
+    def test_it_gets_a_bad_request_response_creating_user_with_invalid_password(self):
+        payload = {"email": "test@mail.com", "password": "secret"}
+        response = self.client.post(self.create_users_url, payload)
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_it_gets_a_bad_request_responsecreating_user_with_not_invalid_email(self):
+        payload = {"email": "not-an-email.com", "password": "secret1992"}
+        response = self.client.post(self.create_users_url, payload)
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_it_gets_a_user_profile_correctly(self):
         url = reverse("users-profile")

@@ -11,10 +11,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CreateUserSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=1, allow_null=False)
-    password = serializers.CharField(min_length=4, allow_null=False)
+    password = serializers.RegexField(
+        r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$", allow_null=False
+    )
 
 
 class UserProfileSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=1, allow_null=False, required=True)
     is_super_user = serializers.BooleanField(allow_null=False, required=True)
-    roles = serializers.ListField(allow_empty=False)
+    roles = serializers.ListField(allow_empty=True)
