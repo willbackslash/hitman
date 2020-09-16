@@ -9,6 +9,10 @@ up:
 	@# It will start both local-db and app
 	docker-compose up --build --detach
 
+up-db:
+	@# It will start only local-db
+	docker-compose up --detach local-db
+
 logs:
 	docker-compose logs --follow
 

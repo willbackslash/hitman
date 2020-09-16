@@ -1,8 +1,8 @@
-from cuser.models import CUser as User
+from cuser.models import CUser as User, Group
 from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from users.serializers import (
@@ -17,6 +17,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes_by_action = {"create": [AllowAny]}
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -24,21 +25,38 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return self.serializer_class
 
+    def get_permissions(self):
+        try:
+            # return permission_classes depending on `action`
+            return [
+                permission()
+                for permission in self.permission_classes_by_action[self.action]
+            ]
+        except KeyError:
+            # action is not set return default permission_classes
+            return [permission() for permission in self.permission_classes]
+
     def create(self, request, *args, **kwargs):
         create_user_serializer = CreateUserSerializer(data=request.data)
 
         if not create_user_serializer.is_valid():
             return Response("Bad request", status.HTTP_400_BAD_REQUEST)
 
-        # TODO: check if email already exists
-        # TODO: Assign user to a manager
-
         cleaned_data = create_user_serializer.data
+        user_exists = User.objects.filter(email=cleaned_data["email"]).first()
+        if user_exists:
+            return Response(
+                {"detail": "A user with this email already exists"},
+                status.HTTP_409_CONFLICT,
+            )
         user = User(
             email=cleaned_data["email"],
             password=make_password(cleaned_data["password"]),
         )
         user.save()
+
+        default_role = Group.objects.get(name="hitman")
+        default_role.user_set.add(user)
 
         return Response(self.serializer_class(user).data, status.HTTP_201_CREATED)
 
