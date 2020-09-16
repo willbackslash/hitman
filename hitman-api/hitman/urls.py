@@ -18,10 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 from rest_framework.authtoken import views
+
+from hits.viewsets.hits_viewset import HitViewSet
 from users.viewsets.user_viewset import UserViewSet
 
 router = SimpleRouter(trailing_slash=False)
 router.register("users", UserViewSet, basename="users")
+router.register("hits", HitViewSet, basename="hits")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
