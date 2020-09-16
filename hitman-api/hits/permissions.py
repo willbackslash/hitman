@@ -41,3 +41,32 @@ class UserCanCreateHits(BasePermission):
         return (
             self.is_manager(user) or user.is_superuser
         ) and self.can_create_hit_for_assigned_user(request)
+
+
+class UserCanAsignHits(BasePermission):
+    def is_manager(self, user):
+        roles = get_user_roles(user)
+        return "manager" in roles
+
+    def has_permission(self, request, view):
+        user = request.user
+
+        if "assigned_to" not in request.data:
+            return True
+
+        if request.data["assigned_to"] == user.email:
+            return False
+
+        if user.is_superuser:
+            return True
+
+        if (
+            self.is_manager(request.user)
+            and ManagerUser.objects.filter(
+                user=CUser.objects.get(email=request.data["assigned_to"]),
+                manager=request.user,
+            ).first()
+        ):  # Check that assigned user is a lackey of logged user
+            return True
+
+        return False

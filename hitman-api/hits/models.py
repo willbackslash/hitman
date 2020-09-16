@@ -23,5 +23,23 @@ class Hit(TimeStampedModel, models.Model):
         CUser, on_delete=models.CASCADE, related_name="requester"
     )
 
+    def mark_as_completed(self):
+        if not self.status == HitStatus.ASSIGNED:
+            raise Exception(
+                f"Could not mark as completed because hit has the status {self.status}"
+            )
+
+        self.status = HitStatus.COMPLETED
+        self.save()
+
+    def mark_as_failed(self):
+        if not self.status == HitStatus.ASSIGNED:
+            raise Exception(
+                f"Could not mark as failed because hit has the status {self.status}"
+            )
+
+        self.status = HitStatus.FAILED
+        self.save()
+
     class Meta:
         db_table = "hits"
