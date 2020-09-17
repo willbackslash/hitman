@@ -1,9 +1,13 @@
-import React, { useEffect } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
 import useAxios from 'axios-hooks';
 import PropTypes from 'prop-types';
 import {
   Alert,
+  Badge,
   Button,
   ButtonGroup,
   Col,
@@ -14,20 +18,28 @@ import {
   Table,
 } from 'react-bootstrap';
 
+import ConfirmationModal from '../components/ConfirmationModal';
 import Loader from '../components/Loader';
 import { canAssignHits } from '../utils';
 
 const Hits = ({ profile }) => {
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [modalAction, setModalAction] = useState(() => null);
+  const [modalActionParams, setModalActionParams] = useState(null);
   const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
   const [{ data: updatedSuccessfully, loading: updating, error: errorUpdating }, callUpdateHitService] = useAxios({ method: 'PUT', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
   const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
 
   const markAsCompleted = (hitId) => {
-    callUpdateHitService({ url: `/hits/${hitId}`, data: { status: 'COMPLETED' } });
+    setModalAction({ action: callUpdateHitService });
+    setModalActionParams({ url: `/hits/${hitId}`, data: { status: 'COMPLETED' } });
+    setShowConfirmationModal(true);
   };
 
   const markAsFailed = (hitId) => {
-    callUpdateHitService({ url: `/hits/${hitId}`, data: { status: 'FAILED' } });
+    setModalAction({ action: callUpdateHitService });
+    setModalActionParams({ url: `/hits/${hitId}`, data: { status: 'FAILED' } });
+    setShowConfirmationModal(true);
   };
 
   const assignHit = (hitId, assignToEmail) => {
@@ -40,8 +52,20 @@ const Hits = ({ profile }) => {
     }
   }, [updatedSuccessfully, callGetService]);
 
+  const getPillColor = (status) => {
+    if (status === 'COMPLETED') return 'success'; // TODO: centralize hit status in constants file
+    if (status === 'FAILED') return 'danger';
+    return 'primary';
+  };
+
   return (
     <Container>
+      <ConfirmationModal
+        show={showConfirmationModal}
+        setShow={setShowConfirmationModal}
+        onConfirm={modalAction}
+        onConfirmParams={modalActionParams}
+      />
       <Row>
         <Col>
           <h1>My Hits</h1>
@@ -72,7 +96,7 @@ const Hits = ({ profile }) => {
         </Col>
         {!loading
         && (
-        <Col>
+        <Col xs="12">
           <Table striped bordered hover size="sm" responsive>
             <thead>
               <tr>
@@ -135,10 +159,14 @@ const Hits = ({ profile }) => {
                             Completed
                           </Dropdown.Item>
                         </DropdownButton>
-                      ) : `${hit.status}`}
+                      ) : (
+                        <Badge pill variant={getPillColor(hit.status)}>
+                          {hit.status}
+                        </Badge>
+                      )}
                   </td>
-                  <td>{hit.created_at}</td>
-                  <td>{hit.updated_at}</td>
+                  <td>{new Date(hit.created_at).toLocaleString()}</td>
+                  <td>{new Date(hit.updated_at).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
