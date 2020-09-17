@@ -1,24 +1,25 @@
 from rest_framework import serializers
 
-from hits.models import HitStatus
+from hits.models import HitStatus, Hit
 from users.serializers import UserSerializer
 
 
-class HitSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+class HitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hit
+        fields = [
+            "id",
+            "target_name",
+            "description",
+            "status",
+            "assigned_to",
+            "requester",
+            "created_at",
+            "updated_at",
+        ]
+
     assigned_to = UserSerializer()
-    target_name = serializers.CharField(
-        min_length=1, max_length=255, required=True, allow_null=False, allow_blank=False
-    )
-    description = serializers.CharField(
-        min_length=1, max_length=255, required=True, allow_null=False, allow_blank=False
-    )
-    status = serializers.ChoiceField(
-        choices=HitStatus.choices, required=True, allow_null=False, allow_blank=False
-    )
     requester = UserSerializer()
-    created_at = serializers.DateTimeField()
-    updated_at = serializers.DateTimeField()
 
 
 class CreateHitSerializer(serializers.Serializer):
