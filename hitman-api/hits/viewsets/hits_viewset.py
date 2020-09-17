@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from hits.models import Hit, HitStatus
-from hits.permissions import UserCanCreateHits, UserCanAsignHits
+from hits.permissions import UserCanCreateHits, UserCanAssignHits
 from hits.serializers import HitSerializer, CreateHitSerializer, UpdateHitSerializer
 from users.models import ManagerUser
 from users.utils import get_user_roles
@@ -17,7 +17,7 @@ class HitViewSet(viewsets.ModelViewSet):
     serializer_class = HitSerializer
     permission_classes_by_action = {
         "create": [IsAuthenticated, UserCanCreateHits],
-        "update": [IsAuthenticated, UserCanAsignHits],
+        "update": [IsAuthenticated, UserCanAssignHits],
     }
 
     def get_queryset(self):  # Filters the available hits by user role

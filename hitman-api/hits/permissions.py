@@ -43,7 +43,7 @@ class UserCanCreateHits(BasePermission):
         ) and self.can_create_hit_for_assigned_user(request)
 
 
-class UserCanAsignHits(BasePermission):
+class UserCanAssignHits(BasePermission):
     def is_manager(self, user):
         roles = get_user_roles(user)
         return "manager" in roles
