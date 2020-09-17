@@ -17,6 +17,8 @@ class HitSerializer(serializers.Serializer):
         choices=HitStatus.choices, required=True, allow_null=False, allow_blank=False
     )
     requester = UserSerializer()
+    created_at = serializers.DateTimeField()
+    updated_at = serializers.DateTimeField()
 
 
 class CreateHitSerializer(serializers.Serializer):

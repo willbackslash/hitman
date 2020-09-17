@@ -17,18 +17,21 @@ import Hits from './pages/Hits';
 import useIsAuthenticaded from './hooks/useIsAuthenticated';
 import { hasHitmenPermissions } from './utils';
 
-const PrivateRoute = ({ component: Component, ...props }) => {
+const PrivateRoute = ({ component: Component, profile, ...props }) => {
   const isAutenticated = useIsAuthenticaded();
   return (
     <Route
       {...props}
       // eslint-disable-next-line no-shadow
-      render={(props) => (isAutenticated ? (<Component {...props} />) : (<Redirect to="/" />))}
+      render={(props) => (isAutenticated ? (<Component profile={profile} {...props} />) : (<Redirect to="/" />))}
     />
   );
 };
 
 PrivateRoute.propTypes = {
+  profile: PropTypes.shape({
+    email: PropTypes.string,
+  }).isRequired,
   component: PropTypes.element.isRequired,
 };
 
@@ -76,7 +79,7 @@ const MainRouter = () => {
       <Switch>
         <Route path="/" component={withRouter(Login)} exact />
         <Route path="/register" component={withRouter(Signup)} exact />
-        <PrivateRoute path="/hits" component={withRouter(Hits)} exact />
+        <PrivateRoute path="/hits" component={withRouter(Hits)} profile={profile} exact />
         <PrivateRoute path="/logout" component={withRouter(Logout)} exact />
         <Route>
           <h2>404: Target not found</h2>
