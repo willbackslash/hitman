@@ -15,10 +15,12 @@ import {
 } from 'react-bootstrap';
 
 import Loader from '../components/Loader';
+import { canAssignHits } from '../utils';
 
 const Hits = ({ profile }) => {
   const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
   const [{ data: updatedSuccessfully, loading: updating, error: errorUpdating }, callUpdateHitService] = useAxios({ method: 'PUT', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
+  const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
 
   const markAsCompleted = (hitId) => {
     callUpdateHitService({ url: `/hits/${hitId}`, data: { status: 'COMPLETED' } });
@@ -26,6 +28,10 @@ const Hits = ({ profile }) => {
 
   const markAsFailed = (hitId) => {
     callUpdateHitService({ url: `/hits/${hitId}`, data: { status: 'FAILED' } });
+  };
+
+  const assignHit = (hitId, assignToEmail) => {
+    callUpdateHitService({ url: `/hits/${hitId}`, data: { assigned_to: assignToEmail } });
   };
 
   useEffect(() => {
@@ -48,10 +54,20 @@ const Hits = ({ profile }) => {
       </Row>
       <br />
       <Row>
-        {(loading || updating) && <Loader />}
+        {(loading || updating || loadingHitmen) && <Loader />}
         <Col>
           {error ? <Alert variant="danger">Error getting hits, try again</Alert> : null}
-          {errorUpdating ? <Alert variant="danger">Sorry we couldn&apos;t update the hit</Alert> : null}
+          {errorUpdating ? (
+            <Alert variant="danger">
+              Sorry we couldn&apos;t update the hit:
+              {errorUpdating.response.data.detail}
+            </Alert>
+          ) : null}
+          {errorGettingHitmen ? (
+            <Alert variant="danger">
+              Sorry we couldn&apos;t get the hitmen list
+            </Alert>
+          ) : null}
           {updatedSuccessfully && <Alert variant="success">Hit updated successfully</Alert>}
         </Col>
         {!loading
@@ -75,7 +91,28 @@ const Hits = ({ profile }) => {
                 <tr>
                   <td>{hit.id}</td>
                   <td>{hit.requester.email}</td>
-                  <td>{hit.assigned_to.email}</td>
+                  <td>
+                    {canAssignHits(profile)
+                      ? (
+                        <DropdownButton
+                          as={ButtonGroup}
+                          key="primary"
+                          variant="primary"
+                          title={hit.assigned_to.email}
+                        >
+                          {
+                            hitmen.map((hitman) => (
+                              <Dropdown.Item
+                                onClick={() => assignHit(hit.id, hitman.email)}
+                              >
+                                {hitman.email}
+                              </Dropdown.Item>
+                            ))
+                          }
+                        </DropdownButton>
+                      )
+                      : `${hit.assigned_to.email}`}
+                  </td>
                   <td>{hit.target_name}</td>
                   <td>{hit.description}</td>
                   <td>
