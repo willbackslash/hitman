@@ -25,7 +25,7 @@ class HitViewSet(viewsets.ModelViewSet):
         roles = get_user_roles(user)
 
         if user.is_superuser:
-            return self.queryset
+            return self.queryset.all()
 
         if "manager" in roles:
             return self.queryset.filter(
