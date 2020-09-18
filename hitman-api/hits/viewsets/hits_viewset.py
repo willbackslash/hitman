@@ -4,14 +4,15 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from hitman.utils.viewset_mixin import PermissionByActionMixin
 from hits.models import Hit, HitStatus
 from hits.permissions import UserCanCreateHits, UserCanAssignHits
 from hits.serializers import HitSerializer, CreateHitSerializer, UpdateHitSerializer
 from users.models import ManagerUser
-from users.utils import get_user_roles
+from users.utils import is_manager
 
 
-class HitViewSet(viewsets.ModelViewSet):
+class HitViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Hit.objects.all()
     serializer_class = HitSerializer
@@ -22,12 +23,11 @@ class HitViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):  # Filters the available hits by user role
         user = self.request.user
-        roles = get_user_roles(user)
 
         if user.is_superuser:
             return self.queryset.all()
 
-        if "manager" in roles:
+        if is_manager(user):
             return self.queryset.filter(
                 Q(assigned_to=user)
                 | Q(
@@ -39,17 +39,6 @@ class HitViewSet(viewsets.ModelViewSet):
             )
 
         return self.queryset.filter(assigned_to=user)
-
-    def get_permissions(self):
-        try:
-            # return permission_classes depending on `action`
-            return [
-                permission()
-                for permission in self.permission_classes_by_action[self.action]
-            ]
-        except KeyError:
-            # action is not set return default permission_classes
-            return [permission() for permission in self.permission_classes]
 
     def get_serializer_class(self):
         if self.action == "create":

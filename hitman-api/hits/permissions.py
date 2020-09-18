@@ -2,7 +2,7 @@ from cuser.models import CUser
 from rest_framework.permissions import BasePermission
 
 from users.models import ManagerUser
-from users.utils import get_user_roles
+from users.utils import is_manager
 
 
 class UserCanCreateHits(BasePermission):
@@ -21,7 +21,7 @@ class UserCanCreateHits(BasePermission):
             return True
 
         if (
-            self.is_manager(request.user)
+            is_manager(request.user)
             and ManagerUser.objects.filter(
                 user=CUser.objects.get(email=request.data["assigned_to"]),
                 manager=request.user,
@@ -31,23 +31,15 @@ class UserCanCreateHits(BasePermission):
 
         return False
 
-    def is_manager(self, user):
-        roles = get_user_roles(user)
-        return "manager" in roles
-
     def has_permission(self, request, view):
         self.can_create_hit_for_assigned_user(request)
         user = request.user
         return (
-            self.is_manager(user) or user.is_superuser
+            is_manager(user) or user.is_superuser
         ) and self.can_create_hit_for_assigned_user(request)
 
 
 class UserCanAssignHits(BasePermission):
-    def is_manager(self, user):
-        roles = get_user_roles(user)
-        return "manager" in roles
-
     def has_permission(self, request, view):
         user = request.user
 
@@ -61,7 +53,7 @@ class UserCanAssignHits(BasePermission):
             return True
 
         if (
-            self.is_manager(request.user)
+            is_manager(request.user)
             and ManagerUser.objects.filter(
                 user=CUser.objects.get(email=request.data["assigned_to"]),
                 manager=request.user,

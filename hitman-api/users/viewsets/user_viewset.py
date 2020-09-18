@@ -5,36 +5,36 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+from hitman.utils.viewset_mixin import PermissionByActionMixin
+from users.permissions import UserCanViewUsers
 from users.serializers import (
     UserSerializer,
     CreateUserSerializer,
     UserProfileSerializer,
 )
-from users.utils import get_user_roles
+from users.utils import get_user_roles, is_manager
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes_by_action = {"create": [AllowAny]}
+    permission_classes_by_action = {
+        "create": [AllowAny],
+        "list": [IsAuthenticated, UserCanViewUsers],
+    }
+
+    def get_queryset(self):
+        if is_manager(self.request.user):
+            return self.queryset.filter(user__manager_id=self.request.user.id).all()
+
+        return super(UserViewSet, self).get_queryset()
 
     def get_serializer_class(self):
         if self.action == "create":
             return CreateUserSerializer
 
         return self.serializer_class
-
-    def get_permissions(self):
-        try:
-            # return permission_classes depending on `action`
-            return [
-                permission()
-                for permission in self.permission_classes_by_action[self.action]
-            ]
-        except KeyError:
-            # action is not set return default permission_classes
-            return [permission() for permission in self.permission_classes]
 
     def create(self, request, *args, **kwargs):
         create_user_serializer = CreateUserSerializer(data=request.data)
