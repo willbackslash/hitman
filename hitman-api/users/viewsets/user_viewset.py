@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+from hitman.utils.viewset_mixin import PermissionByActionMixin
 from users.permissions import UserCanViewUsers
 from users.serializers import (
     UserSerializer,
@@ -14,7 +15,7 @@ from users.serializers import (
 from users.utils import get_user_roles, is_manager
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -34,17 +35,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return CreateUserSerializer
 
         return self.serializer_class
-
-    def get_permissions(self):  # TODO: Create a MIXIN with this method
-        try:
-            # return permission_classes depending on `action`
-            return [
-                permission()
-                for permission in self.permission_classes_by_action[self.action]
-            ]
-        except KeyError:
-            # action is not set return default permission_classes
-            return [permission() for permission in self.permission_classes]
 
     def create(self, request, *args, **kwargs):
         create_user_serializer = CreateUserSerializer(data=request.data)
