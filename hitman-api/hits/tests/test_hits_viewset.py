@@ -193,3 +193,35 @@ class TestHitViewset(APITestCase):
         payload = {"assigned_to": self.boss.email}
         response = self.client.put(url, payload)
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_given_a_boss_then_cannot_mark_as_completed_a_hit(self):
+        self.client.force_authenticate(self.boss)
+        url = self.get_hit_detail_url(self.hitman_from_manager_hit.id)
+        payload = {"status": HitStatus.COMPLETED}
+        response = self.client.put(url, payload)
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_given_a_boss_then_cannot_mark_as_failed_a_hit(self):
+        self.client.force_authenticate(self.boss)
+        url = self.get_hit_detail_url(self.hitman_from_manager_hit.id)
+        payload = {"status": HitStatus.FAILED}
+        response = self.client.put(url, payload)
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_given_a_manager_then_cannot_mark_as_completed_a_hit_that_is_not_assigned_to_him(
+        self,
+    ):
+        self.client.force_authenticate(self.manager)
+        url = self.get_hit_detail_url(self.hitman_from_manager_hit.id)
+        payload = {"status": HitStatus.COMPLETED}
+        response = self.client.put(url, payload)
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_given_a_manager_then_cannot_mark_as_failed_a_hit_that_is_not_assigned_to_him(
+        self,
+    ):
+        self.client.force_authenticate(self.manager)
+        url = self.get_hit_detail_url(self.hitman_from_manager_hit.id)
+        payload = {"status": HitStatus.FAILED}
+        response = self.client.put(url, payload)
+        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
