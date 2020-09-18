@@ -1,20 +1,27 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState } from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  withRouter,
-  Redirect,
-} from 'react-router-dom';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import useAxios from 'axios-hooks';
 import PropTypes from 'prop-types';
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+  withRouter,
+} from 'react-router-dom';
+
 import Navigation from './components/Navigation';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Logout from './pages/Logout';
-import Hits from './pages/Hits';
 import useIsAuthenticaded from './hooks/useIsAuthenticated';
+import Hitman from './pages/Hitman';
+import Hitmen from './pages/Hitmen';
+import Hits from './pages/Hits';
+import Login from './pages/Login';
+import Logout from './pages/Logout';
+import Signup from './pages/Signup';
 import { hasHitmenPermissions } from './utils';
 
 const PrivateRoute = ({ component: Component, profile, ...props }) => {
@@ -80,6 +87,8 @@ const MainRouter = () => {
         <Route path="/" component={withRouter(Login)} exact />
         <Route path="/register" component={withRouter(Signup)} exact />
         <PrivateRoute path="/hits" component={withRouter(Hits)} profile={profile} exact />
+        <PrivateRoute path="/hitmen" component={withRouter(Hitmen)} profile={profile} exact />
+        <PrivateRoute path="/hitmen/:hitmanId" component={withRouter(Hitman)} profile={profile} exact />
         <PrivateRoute path="/logout" component={withRouter(Logout)} exact />
         <Route>
           <h2>404: Target not found</h2>
