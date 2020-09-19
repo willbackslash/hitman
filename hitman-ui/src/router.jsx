@@ -11,7 +11,6 @@ import {
   Redirect,
   Route,
   Switch,
-  withRouter,
 } from 'react-router-dom';
 
 import Navigation from './components/Navigation';
@@ -67,14 +66,6 @@ const MainRouter = () => {
     () => {
       if (userProfile) {
         setProfile(userProfile);
-      }
-    }, [userProfile],
-  );
-
-  useEffect(
-    () => {
-      if (userProfile) {
-        setProfile(userProfile);
         setCanViewHitmen(hasHitmenPermissions(userProfile));
       }
     }, [userProfile],
@@ -84,12 +75,12 @@ const MainRouter = () => {
     <Router>
       {isAutenticated && <Navigation profile={profile} canViewHitmen={canViewHitmen} />}
       <Switch>
-        <Route path="/" component={withRouter(Login)} exact />
-        <Route path="/register" component={withRouter(Signup)} exact />
-        <PrivateRoute path="/hits" component={withRouter(Hits)} profile={profile} exact />
-        <PrivateRoute path="/hitmen" component={withRouter(Hitmen)} profile={profile} exact />
-        <PrivateRoute path="/hitmen/:hitmanId" component={withRouter(Hitman)} profile={profile} exact />
-        <PrivateRoute path="/logout" component={withRouter(Logout)} exact />
+        <Route path="/" component={Login} exact />
+        <Route path="/register" component={Signup} exact />
+        <PrivateRoute path="/hits" component={Hits} profile={profile} exact />
+        <PrivateRoute path="/hitmen" component={Hitmen} profile={profile} exact />
+        <PrivateRoute path="/hitmen/:hitmanId" component={Hitman} profile={profile} exact />
+        <PrivateRoute path="/logout" component={Logout} exact />
         <Route>
           <h2>404: Target not found</h2>
         </Route>

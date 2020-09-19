@@ -7,6 +7,7 @@ import useAxios from 'axios-hooks';
 import PropTypes from 'prop-types';
 import {
   Alert,
+  Badge,
   Button,
   Col,
   Container,
@@ -16,16 +17,43 @@ import {
 import { useParams } from 'react-router-dom';
 
 import Loader from '../components/Loader';
+import {
+  isBoss,
+  isHitman,
+  isManager,
+} from '../utils';
 
-const Hitman = () => {
+const Hitman = ({ profile }) => {
   const { hitmanId } = useParams();
-  const [{ data: hitman, loading, error }, getHitmanDetail] = useAxios({ url: `/users/${hitmanId}`, method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
+  const [{ data: updatedCorrectly, loading: updating, error: errorUpdating }, callUpdateHitmanService] = useAxios({ url: `/users/${hitmanId}`, method: 'PUT', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
+  const [{ data: hitman, loading, error }, callHitmanService] = useAxios({ url: `/users/${hitmanId}`, method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
   const [{ data: hitmen }] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
   const [managedHitmen, setManagedHitmen] = useState([]);
+  const [newStatus, setNewStatus] = useState(null);
+  const [newManagedUsers, setnewManagedUsers] = useState(null);
+
+  const handleSubmit = async () => {
+    await callUpdateHitmanService({ method: 'PUT', data: { is_active: newStatus, managed_users: newManagedUsers } });
+  };
+
+  const handleStatusChange = (e) => {
+    setNewStatus(e.target.value === 'active');
+  };
+
+  const handleManagedUsersChange = (e) => {
+    setnewManagedUsers(Array.from(e.target.selectedOptions, (option) => ({ id: option.value })));
+  };
 
   useEffect(() => {
-    getHitmanDetail();
-  }, [hitmanId, getHitmanDetail]);
+    callHitmanService();
+  }, [hitmanId, callHitmanService]);
+
+  useEffect(() => {
+    if (hitman) {
+      setNewStatus(hitman.is_active);
+      setnewManagedUsers(hitman.managed_users);
+    }
+  }, [hitman]);
 
   useEffect(() => {
     if (hitman && hitman.managed_users) {
@@ -42,14 +70,22 @@ const Hitman = () => {
       </Row>
       <br />
       <Row>
-        {(loading) && <Loader />}
+        {(loading || updating) && <Loader />}
         <Col xs="12">
+          {updatedCorrectly ? <Alert variant="success">Updated correctly</Alert> : null}
+          {errorUpdating ? (
+            <Alert variant="danger">
+              Error updating:
+              {' '}
+              { errorUpdating.response.data.detail }
+            </Alert>
+          ) : null}
           {error ? <Alert variant="danger">Error getting hitman detail, try again</Alert> : null}
         </Col>
         {hitman
             && (
             <Col xs={{ span: 8, offset: 2 }}>
-              <Form>
+              <Form onSubmit={(e) => e.preventDefault()}>
                 <Form.Group>
                   <Form.Label>Hitman id</Form.Label>
                   <Form.Control plaintext type="text" defaultValue={hitman.id} />
@@ -68,17 +104,39 @@ const Hitman = () => {
                 </Form.Group>
                 <Form.Group controlId="exampleForm.ControlSelect1">
                   <Form.Label>Status</Form.Label>
-                  <Form.Control as="select">
-                    <option selected>Activo</option>
-                    <option>Inactivo</option>
+                  <Form.Control as="select" onChange={handleStatusChange}>
+                    <option value="active" selected={hitman.is_active}>Activo</option>
+                    <option value="inactive" selected={!hitman.is_active}>Inactivo</option>
                   </Form.Control>
                 </Form.Group>
-                {hitmen && (
+                <Form.Group>
+                  <Form.Label>Role</Form.Label>
+                  {' '}
+                  <>
+                    { isHitman(hitman) && (
+                    <Badge pill variant="primary">
+                      Hitman
+                    </Badge>
+                    )}
+                    { isManager(hitman) && (
+                      <Badge pill variant="warning">
+                        Manager
+                      </Badge>
+                    )}
+                    { isBoss(hitman) && (
+                      <Badge pill variant="danger">
+                        Boss
+                      </Badge>
+                    )}
+                  </>
+                </Form.Group>
+                {(hitmen && isBoss(profile)) && (
                 <Form.Group controlId="exampleForm.ControlSelect2">
                   <Form.Label>Managed hitmen</Form.Label>
-                  <Form.Control as="select" multiple>
-                    {hitmen.map((option) => (
+                  <Form.Control as="select" multiple onChange={handleManagedUsersChange}>
+                    {hitmen.filter((user) => isHitman(user)).map((option) => (
                       <option
+                        value={option.id}
                         selected={managedHitmen.includes(option.email)}
                       >
                         {option.email}
@@ -87,7 +145,7 @@ const Hitman = () => {
                   </Form.Control>
                 </Form.Group>
                 ) }
-                <Button disabled={loading} variant="primary" type="submit">
+                <Button onClick={handleSubmit} disabled={loading || (newStatus == null && newManagedUsers == null)} variant="primary" type="submit">
                   {!loading ? 'Save changes' : 'Saving ...'}
                 </Button>
               </Form>

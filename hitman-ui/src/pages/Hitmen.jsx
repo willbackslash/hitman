@@ -12,6 +12,12 @@ import {
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+import {
+  isBoss,
+  isHitman,
+  isManager,
+} from '../utils';
+
 const Hitmen = ({ profile }) => {
   const [{ data, loading, error }] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
 
@@ -43,6 +49,7 @@ const Hitmen = ({ profile }) => {
                   <th>First name</th>
                   <th>Last name</th>
                   <th>Status</th>
+                  <th>Role</th>
                   <th>Date joined</th>
                   <th>Actions</th>
                 </tr>
@@ -58,6 +65,23 @@ const Hitmen = ({ profile }) => {
                       <Badge pill variant={getPillColor(hitman.is_active)}>
                         {hitman.is_active ? 'Active' : 'Inactive'}
                       </Badge>
+                    </td>
+                    <td>
+                      { isHitman(hitman) && (
+                      <Badge pill variant="primary">
+                        Hitman
+                      </Badge>
+                      )}
+                      { isManager(hitman) && (
+                      <Badge pill variant="warning">
+                        Manager
+                      </Badge>
+                      )}
+                      { isBoss(hitman) && (
+                      <Badge pill variant="danger">
+                        Boss
+                      </Badge>
+                      )}
                     </td>
                     <td>{hitman.date_joined}</td>
                     <td>
