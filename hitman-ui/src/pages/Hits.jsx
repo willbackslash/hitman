@@ -20,7 +20,11 @@ import {
 
 import ConfirmationModal from '../components/ConfirmationModal';
 import Loader from '../components/Loader';
-import { canAssignHits } from '../utils';
+import {
+  canAssignHits,
+  isBoss,
+  isManager,
+} from '../utils';
 
 const Hits = ({ profile }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -28,7 +32,7 @@ const Hits = ({ profile }) => {
   const [modalActionParams, setModalActionParams] = useState(null);
   const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
   const [{ data: updatedSuccessfully, loading: updating, error: errorUpdating }, callUpdateHitService] = useAxios({ method: 'PUT', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
-  const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
+  const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }, getHitmenList] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
 
   const markAsCompleted = (hitId) => {
     setModalAction({ action: callUpdateHitService });
@@ -51,6 +55,12 @@ const Hits = ({ profile }) => {
       callGetService();
     }
   }, [updatedSuccessfully, callGetService]);
+
+  useEffect(() => {
+    if (profile && data && (isBoss(profile) || isManager(profile))) {
+      getHitmenList();
+    }
+  }, [profile, data, getHitmenList]);
 
   const getPillColor = (status) => {
     if (status === 'COMPLETED') return 'success'; // TODO: centralize hit status in constants file
@@ -97,34 +107,35 @@ const Hits = ({ profile }) => {
         {!loading
         && (
         <Col xs="12">
-          <Table striped bordered hover size="sm" responsive>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Requester</th>
-                <th>Assigned to</th>
-                <th>Target</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Last update</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(data && profile) && data.map((hit) => (
+          { data.length ? (
+            <Table striped bordered hover size="sm" responsive>
+              <thead>
                 <tr>
-                  <td>{hit.id}</td>
-                  <td>{hit.requester.email}</td>
-                  <td>
-                    {canAssignHits(profile)
-                      ? (
-                        <DropdownButton
-                          as={ButtonGroup}
-                          key="primary"
-                          variant="primary"
-                          title={hit.assigned_to.email}
-                        >
-                          {
+                  <th>#</th>
+                  <th>Requester</th>
+                  <th>Assigned to</th>
+                  <th>Target</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Last update</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(data && profile) && data.map((hit) => (
+                  <tr>
+                    <td>{hit.id}</td>
+                    <td>{hit.requester.email}</td>
+                    <td>
+                      {canAssignHits(profile) && hitmen
+                        ? (
+                          <DropdownButton
+                            as={ButtonGroup}
+                            key="primary"
+                            variant="primary"
+                            title={hit.assigned_to.email}
+                          >
+                            {
                             hitmen.map((hitman) => (
                               <Dropdown.Item
                                 onClick={() => assignHit(hit.id, hitman.email)}
@@ -133,44 +144,45 @@ const Hits = ({ profile }) => {
                               </Dropdown.Item>
                             ))
                           }
-                        </DropdownButton>
-                      )
-                      : `${hit.assigned_to.email}`}
-                  </td>
-                  <td>{hit.target_name}</td>
-                  <td>{hit.description}</td>
-                  <td>
-                    { hit.assigned_to.email === profile.email && hit.status === 'ASSIGNED'
-                      ? (
-                        <DropdownButton
-                          as={ButtonGroup}
-                          key="primary"
-                          variant="primary"
-                          title={hit.status}
-                        >
-                          <Dropdown.Item
-                            onClick={() => markAsFailed(hit.id)}
+                          </DropdownButton>
+                        )
+                        : `${hit.assigned_to.email}`}
+                    </td>
+                    <td>{hit.target_name}</td>
+                    <td>{hit.description}</td>
+                    <td>
+                      { hit.assigned_to.email === profile.email && hit.status === 'ASSIGNED'
+                        ? (
+                          <DropdownButton
+                            as={ButtonGroup}
+                            key="primary"
+                            variant="primary"
+                            title={hit.status}
                           >
-                            Failed
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            onClick={() => markAsCompleted(hit.id)}
-                          >
-                            Completed
-                          </Dropdown.Item>
-                        </DropdownButton>
-                      ) : (
-                        <Badge pill variant={getPillColor(hit.status)}>
-                          {hit.status}
-                        </Badge>
-                      )}
-                  </td>
-                  <td>{new Date(hit.created_at).toLocaleString()}</td>
-                  <td>{new Date(hit.updated_at).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+                            <Dropdown.Item
+                              onClick={() => markAsFailed(hit.id)}
+                            >
+                              Failed
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              onClick={() => markAsCompleted(hit.id)}
+                            >
+                              Completed
+                            </Dropdown.Item>
+                          </DropdownButton>
+                        ) : (
+                          <Badge pill variant={getPillColor(hit.status)}>
+                            {hit.status}
+                          </Badge>
+                        )}
+                    </td>
+                    <td>{new Date(hit.created_at).toLocaleString()}</td>
+                    <td>{new Date(hit.updated_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          ) : (<h2>No hits assigned to you yet, chill!</h2>)}
         </Col>
         )}
       </Row>
