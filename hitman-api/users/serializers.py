@@ -1,12 +1,39 @@
 from rest_framework import serializers
 
-from cuser.models import CUser as User
+from cuser.models import CUser as User, Group
+
+
+class ManagedUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField(source="user.id")
+    email = serializers.EmailField(source="user.email", required=False)
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ("name",)
 
 
 class UserSerializer(serializers.ModelSerializer):
+    managed_users = ManagedUserSerializer(source="manager", many=True)
+    roles = GroupSerializer(source="groups", many=True)
+
     class Meta:
         model = User
-        fields = ["email"]
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "groups",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "email",
+            "date_joined",
+            "last_login",
+            "managed_users",
+            "roles",
+        ]
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -16,7 +43,17 @@ class CreateUserSerializer(serializers.Serializer):
     )
 
 
+class UpdateUserSerializer(serializers.ModelSerializer):
+    managed_users = ManagedUserSerializer(
+        source="manager", many=True, required=False, allow_null=True
+    )
+
+    class Meta:
+        model = User
+        fields = ["is_active", "managed_users"]
+
+
 class UserProfileSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=1, allow_null=False, required=True)
-    is_super_user = serializers.BooleanField(allow_null=False, required=True)
+    is_superuser = serializers.BooleanField(allow_null=False, required=True)
     roles = serializers.ListField(allow_empty=True)

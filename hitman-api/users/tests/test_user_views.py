@@ -86,3 +86,13 @@ class TestUserViews(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.json()), 5)
         self.assertEquals(len(response.json()), len(CUser.objects.all()))
+
+    def test_given_a_boss_then_can_promote_a_hitman_to_manager_adding_managed_users_to_end_hitman(
+        self,
+    ):
+        pass
+
+    def test_given_a_boss_can_convert_a_manager_to_end_hitman_removing_all_his_managed_hitmen(
+        self,
+    ):
+        pass
