@@ -1,13 +1,24 @@
 import React, { useEffect } from 'react';
-import {
-  Container, Row, Col, Form, Button, Alert,
-} from 'react-bootstrap';
-import { Link, useHistory } from 'react-router-dom';
+
 import useAxios from 'axios-hooks';
 import { Formik } from 'formik';
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Form,
+  Row,
+} from 'react-bootstrap';
+import {
+  Link,
+  useHistory,
+} from 'react-router-dom';
 import * as yup from 'yup';
 
 const schema = yup.object({
+  first_name: yup.string().required(),
+  last_name: yup.string().required(),
   email: yup.string().required(),
   password: yup.string().matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/).required(),
 });
@@ -15,8 +26,8 @@ const schema = yup.object({
 const Signup = () => {
   const history = useHistory();
   const [{ data, loading, error }, callRegisterService] = useAxios({ url: '/users', method: 'POST' }, { manual: true });
-  const register = ({ email, password }) => {
-    callRegisterService({ data: { email, password } });
+  const register = (formData) => {
+    callRegisterService({ data: formData });
   };
 
   useEffect(() => {
@@ -50,6 +61,28 @@ const Signup = () => {
             <Col md={{ span: 4, offset: 4 }}>
               <Form onSubmit={handleSubmit}>
                 <Form.Group>
+                  <Form.Label>First name</Form.Label>
+                  <Form.Control
+                    id="first_name"
+                    type="first_name"
+                    placeholder="Enter your name ..."
+                    value={values.first_name}
+                    onChange={handleChange}
+                    isInvalid={!!errors.first_name}
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Last name</Form.Label>
+                  <Form.Control
+                    id="last_name"
+                    type="last_name"
+                    placeholder="Enter your last name ..."
+                    value={values.last_name}
+                    onChange={handleChange}
+                    isInvalid={!!errors.last_name}
+                  />
+                </Form.Group>
+                <Form.Group>
                   <Form.Label>Email address</Form.Label>
                   <Form.Control
                     id="email"
@@ -60,7 +93,6 @@ const Signup = () => {
                     isInvalid={!!errors.email}
                   />
                 </Form.Group>
-
                 <Form.Group>
                   <Form.Label>Password</Form.Label>
                   <Form.Control
