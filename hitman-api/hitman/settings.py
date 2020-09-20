@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "cuser",
     "hits",
     "users",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
