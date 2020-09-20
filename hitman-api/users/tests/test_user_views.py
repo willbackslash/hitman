@@ -1,3 +1,6 @@
+from datetime import datetime
+from unittest.mock import patch, PropertyMock
+
 from cuser.models import CUser
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -6,12 +9,14 @@ from rest_framework import status
 from users.models import ManagerUser
 from users.tests.factories.user_factory import UserFactory
 from users.tests.factories.user_manager_factory import ManagerUserFactory
+from users.utils import is_manager, is_hitman
 
 
 class TestUserViews(APITestCase):
     def setUp(self) -> None:
         self.create_users_url = reverse("users-list")
         self.get_users_url = reverse("users-list")
+        self.update_users_url = reverse("users-list")
         self.boss = UserFactory(is_staff=True, is_superuser=True, email="boss@mail.com")
         self.manager = UserFactory(email="manager@mail.com")
         self.manager2 = UserFactory(email="manager2@mail.com")
@@ -64,12 +69,35 @@ class TestUserViews(APITestCase):
         response = self.client.get(self.get_users_url)
         self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_given_a_manager_then_can_only_view_his_managed_users(self):
+    @patch("cuser.models.CUser.date_joined", new_callable=PropertyMock)
+    def test_given_a_manager_then_can_only_view_his_managed_users(
+        self, mocked_date_joined
+    ):
+        fixed_datetime = datetime.now()
+        mocked_date_joined.return_value = fixed_datetime
         self.client.force_authenticate(self.manager)
         response = self.client.get(self.get_users_url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.json()), 1)
-        self.assertListEqual(response.json(), [{"email": "hitman@mail.com"}])
+        self.assertListEqual(
+            response.json(),
+            [
+                {
+                    "id": 139,
+                    "first_name": "",
+                    "last_name": "",
+                    "groups": [1],
+                    "is_active": True,
+                    "is_staff": False,
+                    "is_superuser": False,
+                    "email": "hitman@mail.com",
+                    "date_joined": fixed_datetime.isoformat() + "Z",
+                    "last_login": None,
+                    "managed_users": [],
+                    "roles": [{"name": "hitman"}],
+                }
+            ],
+        )
 
     def test_given_a_manager_then_cant_view_other_manager_users(self):
         self.client.force_authenticate(self.manager)
@@ -90,9 +118,31 @@ class TestUserViews(APITestCase):
     def test_given_a_boss_then_can_promote_a_hitman_to_manager_adding_managed_users_to_end_hitman(
         self,
     ):
-        pass
+        update_url = reverse("users-detail", args=[str(self.hitman.id)])
+        self.client.force_authenticate(self.boss)
+        payload = {
+            "is_active": True,
+            "managed_users": [{"id": self.hitman2.id}],
+        }
+        response = self.client.put(update_url, payload)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.hitman2.refresh_from_db()
+        self.assertTrue(is_manager(self.hitman))
+        self.assertTrue(not is_hitman(self.hitman))
 
     def test_given_a_boss_can_convert_a_manager_to_end_hitman_removing_all_his_managed_hitmen(
         self,
     ):
-        pass
+        update_url = reverse("users-detail", args=[str(self.manager.id)])
+        self.client.force_authenticate(self.boss)
+        payload = {"is_active": True, "managed_users": []}
+        response = self.client.put(update_url, payload)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.hitman2.refresh_from_db()
+        self.assertTrue(not is_manager(self.manager))
+        self.assertTrue(is_hitman(self.manager))
+
+    def test_it_can_update_managed_users_list_if_one_of_the_users_in_the_list_is_manager_or_boss(
+        self,
+    ):
+        pass  # TODO: implement this logic and complete this test case

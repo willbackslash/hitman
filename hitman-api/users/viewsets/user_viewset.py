@@ -89,6 +89,9 @@ class UserViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
 
         user_to_update = CUser.objects.filter(pk=kwargs["pk"]).first()
 
+        if not user_to_update:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         if not user_to_update.is_active and update_user_serializer.data["is_active"]:
             return Response(
                 {"detail": "You can't reactivate users"},
@@ -128,7 +131,19 @@ class UserViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
                     manager=user_to_update, user_id__in=managed_users_to_remove
                 ).delete()
 
-        if not user_to_update:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+        number_managed_users = ManagerUser.objects.filter(
+            manager=user_to_update
+        ).count()
 
-        return Response(self.serializer_class(user_to_update).data, status.HTTP_200_OK)
+        if not user_to_update.is_superuser:
+            if number_managed_users > 0:
+                Group.objects.get(name="manager").user_set.add(user_to_update)
+                Group.objects.get(name="hitman").user_set.remove(user_to_update)
+            else:
+                Group.objects.get(name="manager").user_set.remove(user_to_update)
+                Group.objects.get(name="hitman").user_set.add(user_to_update)
+
+        return Response(
+            self.serializer_class(user_to_update).data,
+            status.HTTP_200_OK,
+        )
