@@ -26,21 +26,26 @@ class TestUserViews(APITestCase):
         self.manager2_user2 = ManagerUserFactory(
             manager=self.manager2, user=self.hitman2
         )
+        self.base_create_payload = {
+            "first_name": "John",
+            "last_name": "Lemon",
+            "email": "test@mail.com",
+            "password": "secret1992",
+        }
 
     def test_it_creates_a_user_correctly(self):
-        payload = {"email": "test@mail.com", "password": "secret1992"}
-        response = self.client.post(self.create_users_url, payload)
+        response = self.client.post(self.create_users_url, self.base_create_payload)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(response.json()["email"], payload["email"])
+        self.assertEquals(response.json()["email"], self.base_create_payload["email"])
 
     def test_it_gets_a_bad_request_response_creating_user_with_invalid_password(self):
-        payload = {"email": "test@mail.com", "password": "secret"}
-        response = self.client.post(self.create_users_url, payload)
+        self.base_create_payload["password"] = "secret"
+        response = self.client.post(self.create_users_url, self.base_create_payload)
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_it_gets_a_bad_request_responsecreating_user_with_not_invalid_email(self):
-        payload = {"email": "not-an-email.com", "password": "secret1992"}
-        response = self.client.post(self.create_users_url, payload)
+        self.base_create_payload["email"] = "not-an-email.com"
+        response = self.client.post(self.create_users_url, self.base_create_payload)
         self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_it_gets_a_user_profile_correctly(self):

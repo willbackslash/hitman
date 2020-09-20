@@ -55,6 +55,8 @@ class UserViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
                 status.HTTP_409_CONFLICT,
             )
         user = User(
+            first_name=cleaned_data["first_name"],
+            last_name=cleaned_data["last_name"],
             email=cleaned_data["email"],
             password=make_password(cleaned_data["password"]),
         )

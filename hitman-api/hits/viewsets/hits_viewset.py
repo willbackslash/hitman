@@ -36,9 +36,9 @@ class HitViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
                         for lackey in ManagerUser.objects.filter(manager=user).all()
                     ]
                 )
-            )
+            ).all()
 
-        return self.queryset.filter(assigned_to=user)
+        return self.queryset.filter(assigned_to=user).all()
 
     def get_serializer_class(self):
         if self.action == "create":

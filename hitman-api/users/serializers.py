@@ -37,6 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CreateUserSerializer(serializers.Serializer):
+    first_name = serializers.CharField(min_length=1, allow_null=False)
+    last_name = serializers.CharField(min_length=1, allow_null=False)
     email = serializers.EmailField(min_length=1, allow_null=False)
     password = serializers.RegexField(
         r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$", allow_null=False
