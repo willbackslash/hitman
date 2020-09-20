@@ -1,6 +1,8 @@
 up:
 	@# It will start both frontend and backend
 	docker-compose -f ./hitman-api/docker-compose.yml up --build --detach
+	# docker-compose -f ./hitman-api/docker-compose.yml exec app python manage.py collectstatic --no-input
+	docker-compose -f ./hitman-api/docker-compose.yml up --build --detach
 	docker-compose -f ./hitman-ui/docker-compose.yml up --build --detach
 
 down:

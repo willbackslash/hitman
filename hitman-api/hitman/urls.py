@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
@@ -22,6 +23,7 @@ from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 from rest_framework.authtoken import views
 
+from hitman import settings
 from hits.viewsets.hits_viewset import HitViewSet
 from users.viewsets.user_viewset import UserViewSet
 
@@ -61,4 +63,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     url(r"^api/auth/", views.obtain_auth_token),
-] + swagger_urls
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += swagger_urls
