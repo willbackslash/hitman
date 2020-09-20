@@ -62,6 +62,6 @@ router.register("hits", HitViewSet, basename="hits")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
-    url(r"^api/auth/", views.obtain_auth_token),
+    url(r"^api/auth/token", views.obtain_auth_token),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += swagger_urls
