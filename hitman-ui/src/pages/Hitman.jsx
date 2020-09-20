@@ -78,6 +78,7 @@ const Hitman = ({ profile }) => {
           {updatedCorrectly ? (
             <Alert variant="success">
               Updated correctly
+              {' '}
               <Link to="/hitmen">Go to hitmen list</Link>
             </Alert>
           ) : null}

@@ -15,13 +15,19 @@ import {
 
 import Navigation from './components/Navigation';
 import useIsAuthenticaded from './hooks/useIsAuthenticated';
+import CreateHit from './pages/CreateHit';
 import Hitman from './pages/Hitman';
 import Hitmen from './pages/Hitmen';
 import Hits from './pages/Hits';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
+import Page404 from './pages/Page404';
 import Signup from './pages/Signup';
-import { hasHitmenPermissions } from './utils';
+import {
+  hasHitmenPermissions,
+  isBoss,
+  isManager,
+} from './utils';
 
 const PrivateRoute = ({ component: Component, profile, ...props }) => {
   const isAutenticated = useIsAuthenticaded();
@@ -78,12 +84,15 @@ const MainRouter = () => {
         <Route path="/" component={Login} exact />
         <Route path="/register" component={Signup} exact />
         <PrivateRoute path="/hits" component={Hits} profile={profile} exact />
-        <PrivateRoute path="/hitmen" component={Hitmen} profile={profile} exact />
-        <PrivateRoute path="/hitmen/:hitmanId" component={Hitman} profile={profile} exact />
+        {profile && (isBoss(profile) || isManager(profile)) && (
+        <>
+          <PrivateRoute path="/hits/add" component={CreateHit} profile={profile} exact />
+          <PrivateRoute path="/hitmen" component={Hitmen} profile={profile} exact />
+          <PrivateRoute path="/hitmen/:hitmanId" component={Hitman} profile={profile} exact />
+        </>
+        )}
         <PrivateRoute path="/logout" component={Logout} exact />
-        <Route>
-          <h2>404: Target not found</h2>
-        </Route>
+        <Route component={Page404} />
       </Switch>
     </Router>
   );

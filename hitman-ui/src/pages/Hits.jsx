@@ -17,6 +17,7 @@ import {
   Row,
   Table,
 } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 import ConfirmationModal from '../components/ConfirmationModal';
 import Loader from '../components/Loader';
@@ -32,7 +33,7 @@ const Hits = ({ profile }) => {
   const [modalAction, setModalAction] = useState(() => null);
   const [modalActionParams, setModalActionParams] = useState(null);
   const authToken = useToken();
-  const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${authToken}` } });
+  const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${authToken}` } }, { manual: true });
   const [{ data: updatedSuccessfully, loading: updating, error: errorUpdating }, callUpdateHitService] = useAxios({ method: 'PUT', headers: { Authorization: `Token ${authToken}` } }, { manual: true });
   const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }, getHitmenList] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${authToken}` } }, { manual: true });
 
@@ -51,6 +52,10 @@ const Hits = ({ profile }) => {
   const assignHit = (hitId, assignToEmail) => {
     callUpdateHitService({ url: `/hits/${hitId}`, data: { assigned_to: assignToEmail } });
   };
+
+  useEffect(() => {
+    callGetService();
+  }, [callGetService]);
 
   useEffect(() => {
     if (updatedSuccessfully) {
@@ -79,14 +84,14 @@ const Hits = ({ profile }) => {
         onConfirmParams={modalActionParams}
       />
       <Row>
-        <Col>
+        <Col xs="9" md="10">
           <h1>My Hits</h1>
         </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Button>Add a hit</Button>
+        { profile && (isManager(profile) || isBoss(profile)) && (
+        <Col xs="3" md="2" style={{ textAlign: 'right' }}>
+          <Button variant="secondary" style={{ marginTop: '10px' }} as={Link} to="/hits/add">Add a hit</Button>
         </Col>
+        )}
       </Row>
       <br />
       <Row>
@@ -109,7 +114,7 @@ const Hits = ({ profile }) => {
         {!loading
         && (
         <Col xs="12">
-          { data.length ? (
+          { data && data.length ? (
             <Table striped bordered hover size="sm" responsive>
               <thead>
                 <tr>
@@ -124,10 +129,19 @@ const Hits = ({ profile }) => {
                 </tr>
               </thead>
               <tbody>
-                {(data && profile) && data.map((hit) => (
+                {(data && profile)
+                && data.sort((a, b) => parseFloat(b.id) - parseFloat(a.id)).map((hit) => (
                   <tr>
                     <td>{hit.id}</td>
-                    <td>{hit.requester.email}</td>
+                    <td>
+                      {hit.requester.first_name}
+                      {' '}
+                      {hit.requester.last_name}
+                      {' '}
+                      (
+                      {hit.requester.email}
+                      )
+                    </td>
                     <td>
                       {canAssignHits(profile) && hitmen
                         ? (
@@ -142,6 +156,10 @@ const Hits = ({ profile }) => {
                               <Dropdown.Item
                                 onClick={() => assignHit(hit.id, hitman.email)}
                               >
+                                {hitman.first_name}
+                                {' '}
+                                {hitman.last_name}
+                                {' '}
                                 {hitman.email}
                               </Dropdown.Item>
                             ))
