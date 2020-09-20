@@ -20,6 +20,7 @@ import {
 
 import ConfirmationModal from '../components/ConfirmationModal';
 import Loader from '../components/Loader';
+import { useToken } from '../hooks/useToken';
 import {
   canAssignHits,
   isBoss,
@@ -30,9 +31,10 @@ const Hits = ({ profile }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [modalAction, setModalAction] = useState(() => null);
   const [modalActionParams, setModalActionParams] = useState(null);
-  const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } });
-  const [{ data: updatedSuccessfully, loading: updating, error: errorUpdating }, callUpdateHitService] = useAxios({ method: 'PUT', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
-  const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }, getHitmenList] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${sessionStorage.getItem('SESSION_AUTH')}` } }, { manual: true });
+  const authToken = useToken();
+  const [{ data, loading, error }, callGetService] = useAxios({ url: '/hits', method: 'GET', headers: { Authorization: `Token ${authToken}` } });
+  const [{ data: updatedSuccessfully, loading: updating, error: errorUpdating }, callUpdateHitService] = useAxios({ method: 'PUT', headers: { Authorization: `Token ${authToken}` } }, { manual: true });
+  const [{ data: hitmen, loading: loadingHitmen, error: errorGettingHitmen }, getHitmenList] = useAxios({ url: '/users', method: 'GET', headers: { Authorization: `Token ${authToken}` } }, { manual: true });
 
   const markAsCompleted = (hitId) => {
     setModalAction({ action: callUpdateHitService });

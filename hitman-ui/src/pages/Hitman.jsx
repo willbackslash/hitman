@@ -14,7 +14,10 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import {
+  Link,
+  useParams,
+} from 'react-router-dom';
 
 import Loader from '../components/Loader';
 import {
@@ -46,7 +49,7 @@ const Hitman = ({ profile }) => {
 
   useEffect(() => {
     callHitmanService();
-  }, [hitmanId, callHitmanService]);
+  }, [hitmanId, updatedCorrectly, callHitmanService]);
 
   useEffect(() => {
     if (hitman) {
@@ -72,7 +75,12 @@ const Hitman = ({ profile }) => {
       <Row>
         {(loading || updating) && <Loader />}
         <Col xs="12">
-          {updatedCorrectly ? <Alert variant="success">Updated correctly</Alert> : null}
+          {updatedCorrectly ? (
+            <Alert variant="success">
+              Updated correctly
+              <Link to="/hitmen">Go to hitmen list</Link>
+            </Alert>
+          ) : null}
           {errorUpdating ? (
             <Alert variant="danger">
               Error updating:
