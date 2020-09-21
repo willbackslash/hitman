@@ -39,3 +39,11 @@ class UpdateHitSerializer(serializers.Serializer):
     status = serializers.ChoiceField(
         choices=HitStatus.choices, required=True, allow_null=True
     )
+
+    def validate(self, data):
+        if ("assigned_to" not in data and "status" not in data) or (
+            "assigned_to" in data and "status" in data
+        ):
+            raise serializers.ValidationError("Only one field can be changed at once")
+
+        return data

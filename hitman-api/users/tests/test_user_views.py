@@ -54,21 +54,6 @@ class TestUserViews(APITestCase):
         response = self.client.get(url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
-    def test_it_gets_an_exception_trying_to_get_a_user_profile_without_a_role_assigned(
-        self,
-    ):
-        url = reverse("users-profile")
-        user = UserFactory(email="no-role-user@mail.com")
-        self.client.force_authenticate(user)
-        with self.assertRaises(Exception):
-            try:
-                response = self.client.get(url)
-                self.assertEquals(
-                    response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            except Exception as e:
-                self.assertEquals(e.value, "INVALID_USER_PROFILE")
-
     def test_given_a_hitman_user_then_can_not_view_hitmen_list(self):
         self.client.force_authenticate(self.hitman)
         response = self.client.get(self.get_users_url)
@@ -88,7 +73,7 @@ class TestUserViews(APITestCase):
             response.json(),
             [
                 {
-                    "id": 139,
+                    "id": self.hitman.id,
                     "first_name": "",
                     "last_name": "",
                     "groups": [1],
@@ -147,7 +132,32 @@ class TestUserViews(APITestCase):
         self.assertTrue(not is_manager(self.manager))
         self.assertTrue(is_hitman(self.manager))
 
-    def test_it_can_update_managed_users_list_if_one_of_the_users_in_the_list_is_manager_or_boss(
+    def test_given_a_boss_then_cant_update_managed_users_if_one_of_the_users_in_the_list_is_manager_or_boss(
         self,
     ):
-        pass  # TODO: implement this logic and complete this test case
+        update_url = reverse("users-detail", args=[str(self.manager.id)])
+        self.client.force_authenticate(self.boss)
+        payload = {
+            "is_active": True,
+            "managed_users": [{"id": self.manager2.id}],
+        }
+        response = self.client.put(update_url, payload)
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            response.json(),
+            {
+                "detail": {
+                    "non_field_errors": [
+                        "A manager can't manage other managers or bosses"
+                    ]
+                }
+            },
+        )
+
+    def test_given_a_boss_then_can_inactivate_users(self):
+        update_url = reverse("users-detail", args=[str(self.manager.id)])
+        self.client.force_authenticate(self.boss)
+        payload = {"is_active": False}
+        response = self.client.put(update_url, payload)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(CUser.objects.get(pk=self.manager.id).is_active)
