@@ -52,7 +52,9 @@ class HitViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
         create_hit_serializer = CreateHitSerializer(data=request.data)
 
         if not create_hit_serializer.is_valid():
-            return Response("Bad request", status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"details": create_hit_serializer.errors}, status.HTTP_400_BAD_REQUEST
+            )
 
         cleaned_data = create_hit_serializer.data
         hit = Hit(
