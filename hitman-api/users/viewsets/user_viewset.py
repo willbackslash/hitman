@@ -26,6 +26,7 @@ class UserViewSet(PermissionByActionMixin, viewsets.ModelViewSet):
         "list": [IsAuthenticated, UserCanViewUsers],
         "update": [IsAuthenticated],
     }
+    http_method_names = ["get", "post", "put", "options"]
 
     def get_queryset(self):
         if is_manager(self.request.user):

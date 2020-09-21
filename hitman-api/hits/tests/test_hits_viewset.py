@@ -136,6 +136,19 @@ class TestHitViewset(APITestCase):
         response = self.client.put(url, payload)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
+    def test_given_a_user_then_cant_assign_a_hit_and_change_status_at_the_same_time(
+        self,
+    ):
+        self.client.force_authenticate(self.manager)
+        url = self.get_hit_detail_url(self.hitman_from_manager_hit.id)
+        payload = {"assigned_to": self.hitman.email, "status": "FAILED"}
+        response = self.client.put(url, payload)
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            response.json(),
+            {"non_field_errors": ["Only one field can be changed at once"]},
+        )
+
     def test_given_a_manager_user_then_cant_assign_a_hit_for_not_one_of_his_lackeys(
         self,
     ):

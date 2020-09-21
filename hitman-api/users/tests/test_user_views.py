@@ -88,7 +88,7 @@ class TestUserViews(APITestCase):
             response.json(),
             [
                 {
-                    "id": 139,
+                    "id": self.hitman.id,
                     "first_name": "",
                     "last_name": "",
                     "groups": [1],
