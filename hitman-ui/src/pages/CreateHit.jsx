@@ -15,9 +15,12 @@ import { Link } from 'react-router-dom';
 import * as yup from 'yup';
 
 import Loader from '../components/Loader';
-import { isHitman } from '../utils';
+import {
+  isBoss,
+  isHitman,
+} from '../utils';
 
-const Hitman = () => {
+const Hitman = ({ profile }) => {
   const schema = yup.object({
     description: yup.string().required(),
     target_name: yup.string().required(),
@@ -108,17 +111,20 @@ const Hitman = () => {
                           isInvalid={!!errors.assigned_to}
                         >
                           <option>-- Select a hitman --</option>
-                          {hitmen.filter((user) => isHitman(user)).map((option) => (
-                            <option
-                              value={option.email}
-                              selected={option.email === values.assigned_to}
-                            >
-                              {option.first_name}
-                              {' '}
-                              {option.last_name}
-                              {' - '}
-                              {option.email}
-                            </option>
+                          {hitmen.filter((user) => (
+                            (isBoss(profile)
+                              || isHitman(user)
+                            ) && profile.email !== user.email)).map((option) => (
+                              <option
+                                value={option.email}
+                                selected={option.email === values.assigned_to}
+                              >
+                                {option.first_name}
+                                {' '}
+                                {option.last_name}
+                                {' - '}
+                                {option.email}
+                              </option>
                           ))}
                         </Form.Control>
                       </Form.Group>
