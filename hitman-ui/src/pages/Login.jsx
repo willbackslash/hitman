@@ -1,10 +1,19 @@
 import React, { useEffect } from 'react';
-import {
-  Container, Row, Col, Form, Button, Alert,
-} from 'react-bootstrap';
-import { useHistory, Link } from 'react-router-dom';
+
 import useAxios from 'axios-hooks';
 import { Formik } from 'formik';
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Form,
+  Row,
+} from 'react-bootstrap';
+import {
+  Link,
+  useHistory,
+} from 'react-router-dom';
 import * as yup from 'yup';
 
 const schema = yup.object({
@@ -14,9 +23,9 @@ const schema = yup.object({
 
 const Login = () => {
   const history = useHistory();
-  const [{ data, loading, error }, callAuthService] = useAxios({ url: '/auth/', method: 'POST' }, { manual: true });
+  const [{ data, loading, error }, callAuthService] = useAxios({ url: '/auth/token', method: 'POST' }, { manual: true });
   const authenticate = ({ email, password }) => {
-    callAuthService({ url: '/auth/', method: 'POST', data: { username: email, password } });
+    callAuthService({ url: '/auth/token', method: 'POST', data: { username: email, password } });
   };
 
   useEffect(() => {
