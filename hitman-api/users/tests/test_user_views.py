@@ -14,6 +14,7 @@ from users.utils import is_manager, is_hitman
 
 class TestUserViews(APITestCase):
     def setUp(self) -> None:
+        CUser.objects.all().delete()  # Remove the seed values
         self.create_users_url = reverse("users-list")
         self.get_users_url = reverse("users-list")
         self.update_users_url = reverse("users-list")
