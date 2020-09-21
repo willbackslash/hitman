@@ -111,11 +111,13 @@ const Hits = ({ profile }) => {
           ) : null}
           {updatedSuccessfully && <Alert variant="success">Hit updated successfully</Alert>}
         </Col>
+      </Row>
+      <Row className="h-100">
         {!loading
         && (
         <Col xs="12">
           { data && data.length ? (
-            <Table striped bordered hover size="sm" responsive>
+            <Table striped bordered hover size="sm" responsive style={{ minHeight: '100%' }}>
               <thead>
                 <tr>
                   <th>#</th>
@@ -149,7 +151,7 @@ const Hits = ({ profile }) => {
                             as={ButtonGroup}
                             key="primary"
                             variant="primary"
-                            title={hit.assigned_to.email}
+                            title={`${hit.requester.first_name} ${hit.requester.last_name} - ${hit.assigned_to.email}`}
                           >
                             {
                             hitmen.map((hitman) => (
