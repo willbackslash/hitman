@@ -130,6 +130,6 @@ dmypy.json
 
 # Database data
 hitman-api/db-data/
-himan-api/hitman/static/
+hitman-api/hitman/static/
 .idea/
 hitman-react/node_modules

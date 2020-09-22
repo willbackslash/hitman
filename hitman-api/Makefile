@@ -8,6 +8,7 @@ export
 up:
 	@# It will start both local-db and app
 	test -f .env || cp .env.dist .env
+	docker-compose up --detach local-db
 	docker-compose up --build --detach
 
 up-db:

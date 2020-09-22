@@ -1,6 +1,7 @@
 up:
 	@# It will start both frontend and backend app
 	test -f ./hitman-api/.env || cp ./hitman-api/.env.dist ./hitman-api/.env
+	docker-compose -f ./hitman-api/docker-compose.yml up --detach local-db
 	docker-compose -f ./hitman-api/docker-compose.yml up --build --detach
 	docker-compose -f ./hitman-ui/docker-compose.yml up --build --detach
 
