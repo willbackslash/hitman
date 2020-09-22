@@ -49,9 +49,9 @@ Go to http://localhost:3000
 ### Removig all the hitman containers
 From the hitman root directory
 > make down
-
-#### You can get more details in the README inside `hitman-api` or `hitman-ui`
-
+---
+### You can get more details in the README inside `hitman-api` or `hitman-ui`
+---
 ## Initial users
 All the users have the next password: `hitman2020`
 
