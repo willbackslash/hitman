@@ -32,7 +32,9 @@ Start only the db
 > make up-db
 ### Install dependencies
 > pip install poetry
+
 > poetry install
+
 > poetry shell
 ### Set env variables
 > set -a && source .env
