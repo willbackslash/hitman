@@ -151,7 +151,7 @@ const Hits = ({ profile }) => {
                             as={ButtonGroup}
                             key="primary"
                             variant="primary"
-                            title={`${hit.requester.first_name} ${hit.requester.last_name} - ${hit.assigned_to.email}`}
+                            title={`${hit.assigned_to.first_name} ${hit.assigned_to.last_name} - ${hit.assigned_to.email}`}
                           >
                             {
                             hitmen.map((hitman) => (
