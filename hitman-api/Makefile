@@ -7,6 +7,7 @@ export
 
 up:
 	@# It will start both local-db and app
+	test -f .env || cp .env.dist .env
 	docker-compose up --build --detach
 
 up-db:
@@ -31,3 +32,8 @@ migrate:
 test:
 	@ # Run the test cases
 	python manage.py test
+
+down:
+	@ #remove all the containers
+	docker-compose stop
+	docker-compose rm --force

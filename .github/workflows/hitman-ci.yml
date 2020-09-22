@@ -5,6 +5,7 @@ on: [push]
 jobs:
 
   test:
+    name: Django app build and test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -67,15 +68,17 @@ jobs:
         working-directory: hitman-ui
     steps:
       - uses: actions/checkout@v1
+        with:
+          env-file: .env
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build-ci
 
       - name: Lint
         run: npm run lint
 
       - name: Test
-        run: npm run test --watchAll=false
+        run: npm run test-ci --watchAll=false

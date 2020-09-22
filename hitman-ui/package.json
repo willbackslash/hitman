@@ -19,9 +19,12 @@
     "yup": "^0.29.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "set -a && source .env && react-scripts start",
+    "build": "set -a && source .env && react-scripts build",
+    "test": "set -a && source .env && react-scripts test",
+    "start-ci": "react-scripts start",
+    "build-ci": "react-scripts build",
+    "test-ci": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .jsx,.js src",
     "lint-fix": "eslint --fix --ext .jsx,.js src"

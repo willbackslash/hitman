@@ -1,8 +1,8 @@
-import { configure } from 'axios-hooks';
 import Axios from 'axios';
+import { configure } from 'axios-hooks';
 
 const axios = Axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: `${process.env.REACT_APP_API_URL}`,
 });
 
 configure({ axios });
