@@ -18,10 +18,14 @@ This project has the monorepo structure, you can find the backend project in `hi
 This quick start guide was only tested on mac os and linux. It won't work on windows
 ### Running backend and frontend together
 From the hitman root directory
-> make up
+```console
+make up
+```
 
 To see the logs:
-> make logs
+```console
+make logs
+```
 
 Go to http://localhost:3000
 
@@ -34,21 +38,27 @@ Swagger: http://localhost/docs
 Redoc: http://localhost/redoc  
 
 ### Running only the frontend (UI) in development mode
-> cd hitman-ui  
-> npm ci  
-> npm run start
+```console
+cd hitman-ui  
+npm ci  
+npm run start
+```
 
 Go to http://localhost:3000
 
 ### Running only the frontend with docker
-> cd hitman-ui  
-> docker-compose up --build --detach
+```console
+cd hitman-ui  
+docker-compose up --build --detach
+```
 
 Go to http://localhost:3000
 
 ### Removig all the hitman containers
 From the hitman root directory
-> make down
+```console
+make down
+```
 ---
 ### You can get more details in the README inside `hitman-api` or `hitman-ui`
 ---
