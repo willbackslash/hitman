@@ -30,8 +30,10 @@ make logs
 Go to http://localhost:3000
 
 ### Running only the backend (API)
-> cd hitman-api  
-> make up  
+```console
+cd hitman-api  
+make up
+```
 
 You can see the api docs in:  
 Swagger: http://localhost/docs  
