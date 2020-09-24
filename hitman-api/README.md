@@ -3,23 +3,39 @@
 ## Quick start
 
 ### Running the project
-> make up
+```console
+make up
+```
 
 Go to http://localhost/docs
 ### Seeing the logs
-> make logs
+```console
+make logs
+```
 ### Running the code lintern (black)
-> make lint
+```console
+make lint
+```
 ### Make migrations
-> make migrations
+```console
+make migrations
+```
 ### Migrate
-> make migrate
+```console
+make migrate
+```
 ### Running the tests
-> make test
+```console
+make test
+```
 ### Running only the db
-> make up-db
+```console
+make up-db
+```
 ### Stopping and removing containers
-> make down
+```console
+make down
+```
 
 ## Docs
 ### Swagger
@@ -29,19 +45,27 @@ http://localhost/redoc
 
 ## For native development with virtualenv
 Start only the db
-> make up-db
+```console
+make up-db
+```
 ### Install dependencies
-> pip install poetry
-
-> poetry install
-
-> poetry shell
+```console
+pip install poetry
+poetry install
+poetry shell
+```
 ### Set env variables
-> set -a && source .env
+```console
+set -a && source .env
+```
 ### Add local-db to your /etc/host
-> sudo bash -c "echo '127.0.0.1 local-db' >> /etc/hosts"
+```console
+sudo bash -c "echo '127.0.0.1 local-db' >> /etc/hosts"
+```
 ### Run the app
-> python manage.py runserver
+```console
+python manage.py runserver
+```
 ### Try it
 Go to http://localhost:8000/docs
 
